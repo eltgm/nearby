@@ -12,7 +12,7 @@ import javax.inject.Singleton;
 import dagger.Component;
 
 @Singleton
-@Component(modules = {NavigationModule.class, NetworkModule.class, SocketModule.class})
+@Component(modules = {NavigationModule.class, NetworkModule.class})
 public interface AppComponent {
     void injectMainActivity(MainActivity mainActivity);
 

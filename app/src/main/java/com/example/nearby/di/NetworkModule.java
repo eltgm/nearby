@@ -2,7 +2,8 @@ package com.example.nearby.di;
 
 import static com.google.gson.FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES;
 
-import com.example.nearby.network.RoomsApi;
+import com.example.nearby.network.AdminApi;
+import com.example.nearby.network.UserApi;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -42,7 +43,13 @@ public class NetworkModule {
 
     @Provides
     @Singleton
-    RoomsApi provideRoomsApi(Retrofit retrofit) {
-        return retrofit.create(RoomsApi.class);
+    UserApi provideUserApi(Retrofit retrofit) {
+        return retrofit.create(UserApi.class);
+    }
+
+    @Provides
+    @Singleton
+    AdminApi provideAdminApi(Retrofit retrofit) {
+        return retrofit.create(AdminApi.class);
     }
 }

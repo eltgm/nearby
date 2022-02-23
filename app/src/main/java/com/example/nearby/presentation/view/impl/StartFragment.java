@@ -2,7 +2,6 @@ package com.example.nearby.presentation.view.impl;
 
 import android.os.Bundle;
 import android.text.Editable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,31 +12,23 @@ import com.arellomobile.mvp.presenter.InjectPresenter;
 import com.arellomobile.mvp.presenter.ProvidePresenter;
 import com.example.nearby.R;
 import com.example.nearby.di.App;
-import com.example.nearby.network.RoomsApi;
+import com.example.nearby.network.UserApi;
 import com.example.nearby.presentation.presenter.StartPresenter;
 import com.example.nearby.presentation.view.StartView;
 import com.github.terrakok.cicerone.Router;
-
-import java.util.UUID;
 
 import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import rx.Observer;
-import rx.Single;
-import rx.schedulers.Schedulers;
-import ua.naiksoftware.stomp.Stomp;
-import ua.naiksoftware.stomp.StompClient;
+
 
 public class StartFragment extends MvpAppCompatFragment implements StartView {
     @Inject
     Router router;
     @Inject
-    RoomsApi roomsApi;
-    @Inject
-    StompClient stompClient;
+    UserApi userApi;
     @BindView(R.id.etUserName)
     EditText etUserName;
     @InjectPresenter
@@ -66,15 +57,6 @@ public class StartFragment extends MvpAppCompatFragment implements StartView {
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_start, container, false);
         ButterKnife.bind(this, view);
-
-        stompClient.connect();
-
-        stompClient.topic("/topic/greetings").subscribe(topicMessage -> {
-            Log.d("NEARBY", topicMessage.getPayload());
-        });
-
-        stompClient.send("/topic/hello", "My first STOMP message!").subscribe();
-
         return view;
     }
 
@@ -98,12 +80,6 @@ public class StartFragment extends MvpAppCompatFragment implements StartView {
             etUserName.requestFocus();
             etUserName.setError("Введите имя!");
         }
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        stompClient.disconnect();
     }
 
     @Override
