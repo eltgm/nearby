@@ -1,11 +1,9 @@
 package com.example.nearby.presentation.view.impl;
 
 import android.os.Bundle;
-import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 
 import com.arellomobile.mvp.MvpAppCompatFragment;
 import com.arellomobile.mvp.presenter.InjectPresenter;
@@ -19,7 +17,6 @@ import com.github.terrakok.cicerone.Router;
 
 import javax.inject.Inject;
 
-import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
@@ -29,8 +26,6 @@ public class StartFragment extends MvpAppCompatFragment implements StartView {
     Router router;
     @Inject
     UserApi userApi;
-    @BindView(R.id.etUserName)
-    EditText etUserName;
     @InjectPresenter
     StartPresenter startPresenter;
 
@@ -62,23 +57,16 @@ public class StartFragment extends MvpAppCompatFragment implements StartView {
 
     @OnClick({R.id.bCreateRoom, R.id.bEnterRoom, R.id.bMyRooms})
     public void onCreateRoomClick(View button) {
-        Editable text = etUserName.getText();
-        if (text.length() > 0) {
-            switch (button.getId()) {
-                case R.id.bCreateRoom:
-                    moveToCreateRoomScreen();
-                    break;
-                case R.id.bEnterRoom:
-                    moveToJoinRoomScreen();
-                    break;
-                case R.id.bMyRooms:
-                    moveToMyRoomsScreen();
-                    break;
-            }
-
-        } else {
-            etUserName.requestFocus();
-            etUserName.setError("Введите имя!");
+        switch (button.getId()) {
+            case R.id.bCreateRoom:
+                moveToCreateRoomScreen();
+                break;
+            case R.id.bEnterRoom:
+                moveToJoinRoomScreen();
+                break;
+            case R.id.bMyRooms:
+                moveToMyRoomsScreen();
+                break;
         }
     }
 

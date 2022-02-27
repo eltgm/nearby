@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">nearby</string>
+    <string name="createRoom">Создать комнату</string>
+    <string name="enterRoom">Войти в комнату</string>
+    <string name="myRooms">Мои комнаты</string>
+    <string name="closeGroup">Закрыть группу</string>
+    <string name="wait">Ожидайте</string>
+    <string name="leaveRoom">Покинуть комнату</string>
+    <string name="activateRoom">Активировать</string>
+</resources>
