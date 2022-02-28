@@ -10,14 +10,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="64dp"
-        android:text="Ожидают 10 человек"
-        android:textSize="20sp" />
+        android:text="@string/showCode"
+        android:textSize="24sp" />
 
     <ImageView
         android:id="@+id/ivQR"
-        android:layout_width="269dp"
-        android:layout_height="308dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         tools:srcCompat="@tools:sample/avatars" />
 
@@ -26,6 +25,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/activateRoom"
+        android:visibility="invisible"
         android:layout_below="@id/ivQR"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="16dp"/>

@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 
 import com.arellomobile.mvp.MvpAppCompatFragment;
@@ -14,6 +15,7 @@ import com.arellomobile.mvp.presenter.InjectPresenter;
 import com.arellomobile.mvp.presenter.ProvidePresenter;
 import com.example.nearby.R;
 import com.example.nearby.di.App;
+import com.example.nearby.network.UserApi;
 import com.example.nearby.presentation.presenter.CreateRoomPresenter;
 import com.example.nearby.presentation.view.CreateRoomView;
 import com.github.terrakok.cicerone.Router;
@@ -28,8 +30,12 @@ import butterknife.OnClick;
 public class CreateRoomFragment extends MvpAppCompatFragment implements CreateRoomView {
     @BindView(R.id.ivQR)
     ImageView ivQR;
+    @BindView(R.id.bActivate)
+    Button bActivate;
     @Inject
     Router router;
+    @Inject
+    UserApi userApi;
 
     private CreateRoomFragment() {
     }
@@ -39,7 +45,7 @@ public class CreateRoomFragment extends MvpAppCompatFragment implements CreateRo
 
     @ProvidePresenter
     CreateRoomPresenter provideCreateRoomPresenter() {
-        return new CreateRoomPresenter(router);
+        return new CreateRoomPresenter(router, userApi);
     }
 
     public static CreateRoomFragment newInstance() {
@@ -53,6 +59,7 @@ public class CreateRoomFragment extends MvpAppCompatFragment implements CreateRo
     public void onCreate(Bundle savedInstanceState) {
         App.INSTANCE.getAppComponent().injectCreateRoomFragment(this);
         super.onCreate(savedInstanceState);
+        createRoomPresenter.createRoom();
     }
 
     @Override
@@ -67,18 +74,24 @@ public class CreateRoomFragment extends MvpAppCompatFragment implements CreateRo
     }
 
     private void initView() {
-        try {
-            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-            Bitmap bitmap = barcodeEncoder.encodeBitmap("content", QR_CODE, 1000, 1000);
-            ivQR.setImageBitmap(bitmap);
-        } catch (Exception e) {
 
-        }
     }
 
     @Override
     @OnClick(R.id.bActivate)
     public void activateRoom() {
         createRoomPresenter.activateRoom();
+    }
+
+    @Override
+    public void createQRForRoom(String mac) {
+        try {
+            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+            Bitmap bitmap = barcodeEncoder.encodeBitmap(mac, QR_CODE, 1000, 1000);
+            ivQR.setImageBitmap(bitmap);
+            bActivate.setVisibility(View.VISIBLE);
+        } catch (Exception e) {
+
+        }
     }
 }

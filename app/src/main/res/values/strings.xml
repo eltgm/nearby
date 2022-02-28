@@ -8,4 +8,5 @@
     <string name="wait">Ожидайте</string>
     <string name="leaveRoom">Покинуть комнату</string>
     <string name="activateRoom">Активировать</string>
+    <string name="showCode">Покажите этот код гостям</string>
 </resources>

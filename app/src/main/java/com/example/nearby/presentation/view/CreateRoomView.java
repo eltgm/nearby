@@ -7,4 +7,6 @@ import com.arellomobile.mvp.viewstate.strategy.StateStrategyType;
 @StateStrategyType(AddToEndStrategy.class)
 public interface CreateRoomView extends MvpView {
     void activateRoom();
+
+    void createQRForRoom(String mac);
 }
