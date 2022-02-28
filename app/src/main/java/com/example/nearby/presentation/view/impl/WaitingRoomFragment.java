@@ -19,11 +19,11 @@ import javax.inject.Inject;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class JoinRoomFragment extends MvpAppCompatFragment implements JoinRoomView {
+public class WaitingRoomFragment extends MvpAppCompatFragment implements JoinRoomView {
     @Inject
     Router router;
 
-    private JoinRoomFragment() {
+    private WaitingRoomFragment() {
     }
 
     @InjectPresenter
@@ -34,8 +34,8 @@ public class JoinRoomFragment extends MvpAppCompatFragment implements JoinRoomVi
         return new JoinRoomPresenter(router);
     }
 
-    public static JoinRoomFragment newInstance() {
-        JoinRoomFragment fragment = new JoinRoomFragment();
+    public static WaitingRoomFragment newInstance() {
+        WaitingRoomFragment fragment = new WaitingRoomFragment();
         Bundle args = new Bundle();
 
         return fragment;
@@ -50,7 +50,7 @@ public class JoinRoomFragment extends MvpAppCompatFragment implements JoinRoomVi
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.fragment_room_join, container, false);
+        final View view = inflater.inflate(R.layout.fragment_waiting_room, container, false);
         ButterKnife.bind(this, view);
 
         initView();

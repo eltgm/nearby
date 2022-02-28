@@ -1,7 +1,7 @@
 package com.example.nearby.di;
 
 import com.example.nearby.presentation.view.impl.CreateRoomFragment;
-import com.example.nearby.presentation.view.impl.JoinRoomFragment;
+import com.example.nearby.presentation.view.impl.WaitingRoomFragment;
 import com.example.nearby.presentation.view.impl.MainActivity;
 import com.example.nearby.presentation.view.impl.MapActivity;
 import com.example.nearby.presentation.view.impl.MyRoomsFragment;
@@ -22,7 +22,7 @@ public interface AppComponent {
 
     void injectCreateRoomFragment(CreateRoomFragment createRoomFragment);
 
-    void injectJoinRoomFragment(JoinRoomFragment joinRoomFragment);
+    void injectJoinRoomFragment(WaitingRoomFragment waitingRoomFragment);
 
     void injectMapActivity(MapActivity mapActivity);
 }

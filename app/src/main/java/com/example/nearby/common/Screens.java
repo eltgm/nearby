@@ -18,7 +18,7 @@ import androidx.fragment.app.FragmentFactory;
 
 import com.example.nearby.presentation.view.impl.MainActivity;
 import com.example.nearby.presentation.view.impl.CreateRoomFragment;
-import com.example.nearby.presentation.view.impl.JoinRoomFragment;
+import com.example.nearby.presentation.view.impl.WaitingRoomFragment;
 import com.example.nearby.presentation.view.impl.MapActivity;
 import com.example.nearby.presentation.view.impl.MyRoomsFragment;
 import com.example.nearby.presentation.view.impl.StartFragment;
@@ -82,7 +82,7 @@ public class Screens {
         @NonNull
         @Override
         public Fragment createFragment(@NonNull FragmentFactory fragmentFactory) {
-            return JoinRoomFragment.newInstance();
+            return WaitingRoomFragment.newInstance();
         }
     }
 
