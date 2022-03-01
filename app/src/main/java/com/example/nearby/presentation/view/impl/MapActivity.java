@@ -1,21 +1,30 @@
 package com.example.nearby.presentation.view.impl;
 
+import static com.example.nearby.common.Screens.MapScreen.IS_USER_ADMIN;
+import static com.example.nearby.common.Screens.MapScreen.ROOM_ID;
+
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.os.Bundle;
-import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
 import com.arellomobile.mvp.MvpAppCompatActivity;
+import com.arellomobile.mvp.presenter.InjectPresenter;
+import com.arellomobile.mvp.presenter.ProvidePresenter;
 import com.example.nearby.R;
 import com.example.nearby.di.App;
+import com.example.nearby.network.AdminApi;
+import com.example.nearby.network.UserApi;
+import com.example.nearby.presentation.presenter.MapPresenter;
 import com.example.nearby.presentation.view.MapView;
 import com.github.terrakok.cicerone.Navigator;
 import com.github.terrakok.cicerone.NavigatorHolder;
+import com.github.terrakok.cicerone.Router;
 import com.github.terrakok.cicerone.androidx.AppNavigator;
 import com.yandex.mapkit.MapKit;
 import com.yandex.mapkit.MapKitFactory;
@@ -24,27 +33,42 @@ import com.yandex.mapkit.layers.ObjectEvent;
 import com.yandex.mapkit.map.CameraPosition;
 import com.yandex.mapkit.map.Cluster;
 import com.yandex.mapkit.map.ClusterListener;
-import com.yandex.mapkit.map.PlacemarkMapObject;
 import com.yandex.mapkit.user_location.UserLocationLayer;
 import com.yandex.mapkit.user_location.UserLocationObjectListener;
 import com.yandex.mapkit.user_location.UserLocationView;
 import com.yandex.runtime.image.ImageProvider;
-import com.yandex.runtime.ui_view.ViewProvider;
 
 import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class MapActivity extends MvpAppCompatActivity implements MapView, UserLocationObjectListener {
     private final Navigator navigator
             = new AppNavigator(this, -1);
+    private boolean isUserAdmin = false;
+    private String roomId;
 
     @Inject
+    Router router;
+    @Inject
     NavigatorHolder navigatorHolder;
+    @Inject
+    UserApi userApi;
+    @Inject
+    AdminApi adminApi;
+
     @BindView(R.id.mapView)
     com.yandex.mapkit.mapview.MapView mapView;
+    @InjectPresenter
+    MapPresenter mapPresenter;
     private UserLocationLayer userLocationLayer;
+
+    @ProvidePresenter
+    MapPresenter provideMapPresenter() {
+        return new MapPresenter(router, userApi, adminApi);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +82,12 @@ public class MapActivity extends MvpAppCompatActivity implements MapView, UserLo
     }
 
     private void initView() {
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            this.isUserAdmin = extras.getBoolean(IS_USER_ADMIN, false);
+            this.roomId = extras.getString(ROOM_ID, "");
+        }
+
         ButterKnife.bind(this);
         mapView.getMap().setRotateGesturesEnabled(false);
         mapView.getMap().move(new CameraPosition(new Point(59.945933, 30.320045), 10, 0, 0));
@@ -68,7 +98,9 @@ public class MapActivity extends MvpAppCompatActivity implements MapView, UserLo
         userLocationLayer.setHeadingEnabled(true);
 
         userLocationLayer.setObjectListener(this);
-        mapView.getMap().getMapObjects().addClusterizedPlacemarkCollection(new ClusterListener() {
+        mapView.getMap()
+                .getMapObjects()
+                .addClusterizedPlacemarkCollection(new ClusterListener() {
             @Override
             public void onClusterAdded(@NonNull Cluster cluster) {
                 System.out.println("cluster = " + cluster);
@@ -78,13 +110,18 @@ public class MapActivity extends MvpAppCompatActivity implements MapView, UserLo
     }
 
     @Override
-    public void leaveGroup() {
-
+    public void leaveRoom() {
+        mapPresenter.leaveRoom(roomId);
     }
 
     @Override
-    public void deleteGroup() {
+    public void deleteRoom() {
+        mapPresenter.deleteRoom(roomId);
+    }
 
+    @Override
+    public void showError(String error) {
+        Toast.makeText(MapActivity.this, error, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -128,6 +165,15 @@ public class MapActivity extends MvpAppCompatActivity implements MapView, UserLo
     @Override
     public void onObjectUpdated(@NonNull UserLocationView userLocationView, @NonNull ObjectEvent objectEvent) {
 
+    }
+
+    @OnClick(R.id.bCloseRoom)
+    public void closeRoomButtonListener() {
+        if (isUserAdmin) {
+            deleteRoom();
+        } else {
+            leaveRoom();
+        }
     }
 
     public Bitmap drawSimpleBitmap(String number) {

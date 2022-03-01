@@ -128,6 +128,16 @@ public class Screens {
     }
 
     public static final class MapScreen implements ActivityScreen {
+        public static final String IS_USER_ADMIN = "IS_USER_ADMIN";
+        public static final String ROOM_ID = "ROOM_ID";
+
+        private final boolean isUserAdmin;
+        private final String roomId;
+
+        public MapScreen(boolean isUserAdmin, String roomId) {
+            this.isUserAdmin = isUserAdmin;
+            this.roomId = roomId;
+        }
 
         @NonNull
         @Override
@@ -144,7 +154,10 @@ public class Screens {
         @NonNull
         @Override
         public Intent createIntent(@NonNull Context context) {
-            return new Intent(context, MapActivity.class);
+            Intent intent = new Intent(context, MapActivity.class);
+            intent.putExtra(IS_USER_ADMIN, isUserAdmin);
+            intent.putExtra(ROOM_ID, roomId);
+            return intent;
         }
     }
 }

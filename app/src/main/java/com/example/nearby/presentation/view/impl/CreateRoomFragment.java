@@ -1,5 +1,6 @@
 package com.example.nearby.presentation.view.impl;
 
+import static android.text.TextUtils.isEmpty;
 import static com.google.zxing.BarcodeFormat.QR_CODE;
 
 import android.graphics.Bitmap;
@@ -9,12 +10,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.arellomobile.mvp.MvpAppCompatFragment;
 import com.arellomobile.mvp.presenter.InjectPresenter;
 import com.arellomobile.mvp.presenter.ProvidePresenter;
 import com.example.nearby.R;
 import com.example.nearby.di.App;
+import com.example.nearby.network.AdminApi;
 import com.example.nearby.network.UserApi;
 import com.example.nearby.presentation.presenter.CreateRoomPresenter;
 import com.example.nearby.presentation.view.CreateRoomView;
@@ -28,6 +31,8 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class CreateRoomFragment extends MvpAppCompatFragment implements CreateRoomView {
+    private String roomId;
+
     @BindView(R.id.ivQR)
     ImageView ivQR;
     @BindView(R.id.bActivate)
@@ -36,6 +41,8 @@ public class CreateRoomFragment extends MvpAppCompatFragment implements CreateRo
     Router router;
     @Inject
     UserApi userApi;
+    @Inject
+    AdminApi adminApi;
 
     private CreateRoomFragment() {
     }
@@ -45,7 +52,7 @@ public class CreateRoomFragment extends MvpAppCompatFragment implements CreateRo
 
     @ProvidePresenter
     CreateRoomPresenter provideCreateRoomPresenter() {
-        return new CreateRoomPresenter(router, userApi);
+        return new CreateRoomPresenter(router, userApi, adminApi);
     }
 
     public static CreateRoomFragment newInstance() {
@@ -80,18 +87,30 @@ public class CreateRoomFragment extends MvpAppCompatFragment implements CreateRo
     @Override
     @OnClick(R.id.bActivate)
     public void activateRoom() {
-        createRoomPresenter.activateRoom();
+        if (!isEmpty(roomId)) {
+            createRoomPresenter.activateRoom(roomId);
+        } else {
+            Toast.makeText(this.getActivity(), "Комната не создана!", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
-    public void createQRForRoom(String mac) {
+    public void createQRForRoom(String roomId) {
+        this.roomId = roomId;
+
         try {
             BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-            Bitmap bitmap = barcodeEncoder.encodeBitmap(mac, QR_CODE, 1000, 1000);
+            Bitmap bitmap = barcodeEncoder.encodeBitmap(roomId, QR_CODE, 1000, 1000);
             ivQR.setImageBitmap(bitmap);
             bActivate.setVisibility(View.VISIBLE);
         } catch (Exception e) {
-
+            Toast.makeText(this.getActivity(), "Ошибка при создании QR! Попробуйте еще", Toast.LENGTH_SHORT).show();
         }
     }
+
+    @Override
+    public void showError(String error) {
+        Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
+    }
+
 }

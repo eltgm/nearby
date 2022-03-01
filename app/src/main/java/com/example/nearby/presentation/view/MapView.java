@@ -6,7 +6,9 @@ import com.arellomobile.mvp.viewstate.strategy.StateStrategyType;
 
 @StateStrategyType(SingleStateStrategy.class)
 public interface MapView extends MvpView {
-    void leaveGroup();
+    void leaveRoom();
 
-    void deleteGroup();
+    void deleteRoom();
+
+    void showError(String error);
 }

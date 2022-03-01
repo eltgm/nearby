@@ -1,21 +1,12 @@
 package com.example.nearby.presentation.presenter;
 
-import static android.preference.PreferenceManager.getDefaultSharedPreferences;
-import static com.yandex.runtime.Runtime.getApplicationContext;
-
-import android.content.SharedPreferences;
-import android.util.Log;
-
 import com.arellomobile.mvp.InjectViewState;
 import com.example.nearby.common.Screens;
-import com.example.nearby.di.App;
 import com.example.nearby.models.Room;
+import com.example.nearby.network.AdminApi;
 import com.example.nearby.network.UserApi;
 import com.example.nearby.presentation.view.CreateRoomView;
-import com.example.nearby.presentation.view.impl.MainActivity;
 import com.github.terrakok.cicerone.Router;
-
-import java.util.UUID;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -27,18 +18,18 @@ import io.reactivex.schedulers.Schedulers;
 public class CreateRoomPresenter extends BasePresenter<CreateRoomView> {
     private final Router router;
     private final UserApi userApi;
+    private final AdminApi adminApi;
     private final CompositeDisposable disposables;
 
-    public CreateRoomPresenter(Router router, UserApi userApi) {
+    public CreateRoomPresenter(Router router, UserApi userApi, AdminApi adminApi) {
         this.router = router;
         this.userApi = userApi;
+        this.adminApi = adminApi;
         this.disposables = new CompositeDisposable();
     }
 
     public void createRoom() {
-        String userId = getUserId();
-
-        addDisposable(userApi.createRoom(userId)
+        addDisposable(userApi.createRoom(getUserId())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new DisposableObserver<Room>() {
@@ -49,7 +40,7 @@ public class CreateRoomPresenter extends BasePresenter<CreateRoomView> {
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.e("ERROR", e.getLocalizedMessage());
+                        getViewState().showError(String.format("Ошибка при создании комнаты - %s", e.getLocalizedMessage()));
                     }
 
                     @Override
@@ -57,25 +48,29 @@ public class CreateRoomPresenter extends BasePresenter<CreateRoomView> {
 
                     }
                 }));
-
     }
 
-    private String getUserId() {
-        SharedPreferences idStorage
-                = getDefaultSharedPreferences(App.INSTANCE);
-        String userId = idStorage.getString("USER_ID", null);
-        if (userId == null) {
-            userId = UUID.randomUUID().toString();
-            SharedPreferences.Editor edit = idStorage.edit();
-            edit.putString("USER_ID", userId);
-            edit.commit();
-        }
 
-        return userId;
-    }
+    public void activateRoom(String roomId) {
+        addDisposable(adminApi.activateRoom(roomId, getUserId())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableObserver<Room>() {
+                    @Override
+                    public void onNext(Room room) {
+                        router.newRootScreen(new Screens.MapScreen(true, roomId));
+                    }
 
-    public void activateRoom() {
-        router.newRootScreen(new Screens.MapScreen());
+                    @Override
+                    public void onError(Throwable e) {
+                        getViewState().showError(String.format("Ошибка при активации комнаты - %s", e.getLocalizedMessage()));
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                }));
     }
 
     @Override
