@@ -7,4 +7,8 @@ import com.arellomobile.mvp.viewstate.strategy.StateStrategyType;
 @StateStrategyType(AddToEndStrategy.class)
 public interface JoinRoomView extends MvpView {
     void leaveRoom();
+
+    void showError(String error);
+
+    void joinWaitlist();
 }

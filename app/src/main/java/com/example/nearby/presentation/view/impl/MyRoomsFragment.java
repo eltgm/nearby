@@ -32,7 +32,7 @@ public class MyRoomsFragment extends MvpAppCompatFragment implements MyRoomsView
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.fragment_room_join, container, false); //TODO поменять верстку
+        final View view = inflater.inflate(R.layout.fragment_room_join, container, false);
         ButterKnife.bind(this, view);
 
         initView();
