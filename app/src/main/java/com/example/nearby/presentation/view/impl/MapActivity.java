@@ -1,23 +1,30 @@
 package com.example.nearby.presentation.view.impl;
 
+import static android.graphics.BitmapFactory.decodeResource;
 import static com.example.nearby.common.Screens.MapScreen.IS_USER_ADMIN;
 import static com.example.nearby.common.Screens.MapScreen.ROOM_ID;
+import static org.apache.lucene.util.SloppyMath.haversinMeters;
 
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.graphics.PointF;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 
 import com.arellomobile.mvp.MvpAppCompatActivity;
 import com.arellomobile.mvp.presenter.InjectPresenter;
 import com.arellomobile.mvp.presenter.ProvidePresenter;
 import com.example.nearby.R;
 import com.example.nearby.di.App;
+import com.example.nearby.models.Coordinates;
+import com.example.nearby.models.Room;
+import com.example.nearby.models.User;
 import com.example.nearby.network.AdminApi;
 import com.example.nearby.network.UserApi;
 import com.example.nearby.presentation.presenter.MapPresenter;
@@ -31,24 +38,34 @@ import com.yandex.mapkit.MapKitFactory;
 import com.yandex.mapkit.geometry.Point;
 import com.yandex.mapkit.layers.ObjectEvent;
 import com.yandex.mapkit.map.CameraPosition;
-import com.yandex.mapkit.map.Cluster;
-import com.yandex.mapkit.map.ClusterListener;
+import com.yandex.mapkit.map.MapObjectCollection;
+import com.yandex.mapkit.map.PlacemarkMapObject;
 import com.yandex.mapkit.user_location.UserLocationLayer;
 import com.yandex.mapkit.user_location.UserLocationObjectListener;
 import com.yandex.mapkit.user_location.UserLocationView;
 import com.yandex.runtime.image.ImageProvider;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
 
 public class MapActivity extends MvpAppCompatActivity implements MapView, UserLocationObjectListener {
     private final Navigator navigator
             = new AppNavigator(this, -1);
     private boolean isUserAdmin = false;
     private String roomId;
+    private MapObjectCollection mapObjectCollection;
+    private final Map<String, PlacemarkMapObject> drawnUsers = new HashMap<>();
 
     @Inject
     Router router;
@@ -82,6 +99,12 @@ public class MapActivity extends MvpAppCompatActivity implements MapView, UserLo
     }
 
     private void initView() {
+        LocationManager mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             this.isUserAdmin = extras.getBoolean(IS_USER_ADMIN, false);
@@ -98,15 +121,105 @@ public class MapActivity extends MvpAppCompatActivity implements MapView, UserLo
         userLocationLayer.setHeadingEnabled(true);
 
         userLocationLayer.setObjectListener(this);
-        mapView.getMap()
-                .getMapObjects()
-                .addClusterizedPlacemarkCollection(new ClusterListener() {
-            @Override
-            public void onClusterAdded(@NonNull Cluster cluster) {
-                System.out.println("cluster = " + cluster);
+        this.mapObjectCollection = mapView.getMap()
+                .getMapObjects();
+
+        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 15000,
+                10, new LocationListener() {
+                    @Override
+                    public void onLocationChanged(@NonNull Location location) {
+                        String userId = mapPresenter.getUserId();
+                        DisposableObserver<Room> disposableObserver = userApi.updateCoordinates(roomId, userId,
+                                new Coordinates(location.getLongitude(), location.getLatitude()))
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribeWith(new DisposableObserver<Room>() {
+
+                                    @Override
+                                    public void onNext(Room room) {
+                                        System.out.println("room = " + room);
+
+                                        List<User> users = room.getUsers();
+
+                                        checkLeftUsersAndDeletePlacemarks(users);
+                                        drawUsersIfNecessary(users, userId, location);
+                                    }
+
+                                    @Override
+                                    public void onError(Throwable e) {
+                                        e.getLocalizedMessage();
+                                    }
+
+                                    @Override
+                                    public void onComplete() {
+
+                                    }
+                                });
+                    }
+
+                    @Override
+                    public void onProviderEnabled(@NonNull String provider) {
+
+                    }
+
+                    @Override
+                    public void onProviderDisabled(@NonNull String provider) {
+
+                    }
+
+                    @Override
+                    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+                    }
+                });
+    }
+
+    private void drawUsersIfNecessary(List<User> users, String userId, @NonNull Location location) {
+        for (User user : users) {
+            String updatedUserId = user.getId();
+            if (updatedUserId.equals(userId)) continue;
+
+            Coordinates updatedUserLastCoordinates = user.getLastCoordinates();
+            Double updatedUserLastCoordinatesLongitude = updatedUserLastCoordinates.getLongitude();
+            Double updatedUserLastCoordinatesLatitude = updatedUserLastCoordinates.getLatitude();
+            double distanceBetweenUsers = haversinMeters(location.getLatitude(), location.getLongitude()
+                    , updatedUserLastCoordinatesLatitude, updatedUserLastCoordinatesLongitude);
+            Point newUserPoint = new Point(updatedUserLastCoordinatesLatitude, updatedUserLastCoordinatesLongitude);
+
+            if (drawnUsers.containsKey(updatedUserId)) {
+                PlacemarkMapObject userMark = drawnUsers.get(updatedUserId);
+                if (distanceBetweenUsers <= 10) {
+                    userMark.setGeometry(newUserPoint);
+                } else {
+                    mapObjectCollection.remove(userMark);
+                    drawnUsers.remove(updatedUserId); //TODO проверить, что удалился
+                }
+            } else if (distanceBetweenUsers <= 10) {
+                drawnUsers.put(updatedUserId, mapObjectCollection.addPlacemark(newUserPoint, ImageProvider.fromBitmap(decodeResource(getResources(), R.drawable.outline_account_circle_black_36))));
             }
-        })
-                .addPlacemark(new Point(55.7475, 48.74), ImageProvider.fromBitmap(drawSimpleBitmap("Андрей")));
+        }
+    }
+
+    private void checkLeftUsersAndDeletePlacemarks(List<User> users) {
+        List<String> usersIdToDelete = new ArrayList<>();
+        for (Map.Entry<String, PlacemarkMapObject> stringPlacemarkMapObjectEntry : drawnUsers.entrySet()) {
+            String drawnUserId = stringPlacemarkMapObjectEntry.getKey();
+            boolean isDelete = true;
+            for (User user : users) {
+                if (user.getId().equals(drawnUserId)) {
+                    isDelete = false;
+                    break;
+                }
+            }
+
+            if (isDelete) {
+                usersIdToDelete.add(drawnUserId);
+            }
+        }
+        for (String userId : usersIdToDelete) {
+            drawnUsers.remove(userId);
+        }
+        usersIdToDelete.clear();
     }
 
     @Override
@@ -174,24 +287,5 @@ public class MapActivity extends MvpAppCompatActivity implements MapView, UserLo
         } else {
             leaveRoom();
         }
-    }
-
-    public Bitmap drawSimpleBitmap(String number) {
-        int picSize = 250;
-        Bitmap bitmap = Bitmap.createBitmap(picSize, picSize, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        // отрисовка плейсмарка
-        Paint paint = new Paint();
-        paint.setColor(Color.GREEN);
-        paint.setStyle(Paint.Style.FILL);
-        canvas.drawCircle(picSize / 2, picSize / 2, picSize / 2, paint);
-        // отрисовка текста
-        paint.setColor(Color.WHITE);
-        paint.setAntiAlias(true);
-        paint.setTextSize(80);
-        paint.setTextAlign(Paint.Align.CENTER);
-        canvas.drawText(number, picSize / 2,
-                picSize / 2 - ((paint.descent() + paint.ascent()) / 2), paint);
-        return bitmap;
     }
 }

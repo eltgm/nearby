@@ -1,7 +1,5 @@
 package com.example.nearby.di;
 
-import static com.google.gson.FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES;
-
 import com.example.nearby.network.AdminApi;
 import com.example.nearby.network.UserApi;
 import com.google.gson.Gson;
@@ -26,9 +24,7 @@ public class NetworkModule {
     @Provides
     @Singleton
     Gson provideGson() {
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.setFieldNamingPolicy(LOWER_CASE_WITH_UNDERSCORES);
-        return gsonBuilder.create();
+        return new GsonBuilder().create();
     }
 
     @Provides
