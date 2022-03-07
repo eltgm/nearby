@@ -76,7 +76,6 @@ public class MapActivity extends MvpAppCompatActivity implements MapView, UserLo
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        MapKitFactory.setApiKey("a2b719b5-bc4d-454d-945e-cfe787365532");
         MapKitFactory.initialize(this);
         App.INSTANCE.getAppComponent().injectMapActivity(this);
 

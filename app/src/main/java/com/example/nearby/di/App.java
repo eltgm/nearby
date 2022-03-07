@@ -2,6 +2,8 @@ package com.example.nearby.di;
 
 import android.app.Application;
 
+import com.yandex.mapkit.MapKitFactory;
+
 public class App extends Application {
     public static App INSTANCE;
     private static AppComponent component;
@@ -20,5 +22,6 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         INSTANCE = this;
+        MapKitFactory.setApiKey("a2b719b5-bc4d-454d-945e-cfe787365532");
     }
 }

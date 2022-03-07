@@ -5,6 +5,7 @@ import static org.apache.lucene.util.SloppyMath.haversinMeters;
 
 import android.content.res.Resources;
 import android.location.Location;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -36,6 +37,8 @@ import io.reactivex.schedulers.Schedulers;
 
 @InjectViewState
 public class MapPresenter extends BasePresenter<MapView> {
+    private static final String MAP_TAG = "users_map_tag";
+
     private final Router router;
     private final UserApi userApi;
     private final AdminApi adminApi;
@@ -76,6 +79,7 @@ public class MapPresenter extends BasePresenter<MapView> {
 
                     @Override
                     public void onNext(Room room) {
+                        Log.d(MAP_TAG, "обновление координат");
                         List<User> users = room.getUsers();
 
                         checkLeftUsersAndDeletePlacemarks(users);
@@ -107,14 +111,18 @@ public class MapPresenter extends BasePresenter<MapView> {
             Point newUserPoint = new Point(updatedUserLastCoordinatesLatitude, updatedUserLastCoordinatesLongitude);
 
             if (drawnUsers.containsKey(updatedUserId)) {
+                Log.d(MAP_TAG, String.format("Пользователь с id - %s уже отрисован", updatedUserId));
                 PlacemarkMapObject userMark = drawnUsers.get(updatedUserId);
                 if (distanceBetweenUsers <= 10) {
+                    Log.d(MAP_TAG, String.format("Обновляем позицию пользователя - %s", updatedUserId));
                     userMark.setGeometry(newUserPoint);
                 } else {
+                    Log.d(MAP_TAG, String.format("Пользователь - %s находится на расстоянии %f", updatedUserId, distanceBetweenUsers));
                     mapObjectCollection.remove(userMark);
                     drawnUsers.remove(updatedUserId);
                 }
             } else if (distanceBetweenUsers <= 10) {
+                Log.d(MAP_TAG, String.format("Пользователя - %s нет. Рисуем", updatedUserId, distanceBetweenUsers));
                 drawnUsers.put(updatedUserId, mapObjectCollection.addPlacemark(newUserPoint, ImageProvider.fromBitmap(decodeResource(resources, R.drawable.outline_account_circle_black_36))));
             }
         }
