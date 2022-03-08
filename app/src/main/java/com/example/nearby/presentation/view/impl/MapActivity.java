@@ -53,6 +53,8 @@ public class MapActivity extends MvpAppCompatActivity implements MapView, UserLo
     private String roomId;
     private Map usersMap;
     private MapObjectCollection mapObjectCollection;
+    private LocationListener locationListener;
+    private LocationManager mLocationManager;
 
     @Inject
     Router router;
@@ -100,8 +102,7 @@ public class MapActivity extends MvpAppCompatActivity implements MapView, UserLo
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-
-        LocationManager mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        this.mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         this.usersMap = mapView.getMap();
         usersMap.setRotateGesturesEnabled(false);
@@ -114,36 +115,36 @@ public class MapActivity extends MvpAppCompatActivity implements MapView, UserLo
         userLocationLayer.setObjectListener(this);
         this.mapObjectCollection = usersMap.getMapObjects();
 
-        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000,
-                0, new LocationListener() {
-                    @Override
-                    public void onLocationChanged(@NonNull Location location) {
-                        if (isFirstRender) {
-                            usersMap.move(
-                                    new CameraPosition(
-                                            new Point(location.getLatitude(), location.getLongitude()), 18, 0, 0
-                                    )
-                            );
-                            isFirstRender = false;
-                        }
-                        mapPresenter.updateUsersCoordinates(roomId, mapObjectCollection, location);
-                    }
+        this.locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(@NonNull Location location) {
+                if (isFirstRender) {
+                    usersMap.move(
+                            new CameraPosition(
+                                    new Point(location.getLatitude(), location.getLongitude()), 18, 0, 0
+                            )
+                    );
+                    isFirstRender = false;
+                }
+                mapPresenter.updateUsersCoordinates(roomId, mapObjectCollection, location);
+            }
 
-                    @Override
-                    public void onProviderEnabled(@NonNull String provider) {
+            @Override
+            public void onProviderEnabled(@NonNull String provider) {
 
-                    }
+            }
 
-                    @Override
-                    public void onProviderDisabled(@NonNull String provider) {
+            @Override
+            public void onProviderDisabled(@NonNull String provider) {
 
-                    }
+            }
 
-                    @Override
-                    public void onStatusChanged(String provider, int status, Bundle extras) {
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
 
-                    }
-                });
+            }
+        };
+        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 0, this.locationListener);
     }
 
     @Override
@@ -177,6 +178,7 @@ public class MapActivity extends MvpAppCompatActivity implements MapView, UserLo
     protected void onStop() {
         mapView.onStop();
         MapKitFactory.getInstance().onStop();
+        mLocationManager.removeUpdates(locationListener);
         super.onStop();
     }
 

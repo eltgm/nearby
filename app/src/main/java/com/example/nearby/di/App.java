@@ -11,6 +11,7 @@ public class App extends Application {
     public AppComponent getAppComponent() {
         if (component == null) {
             component = DaggerAppComponent.builder()
+                    .socketModule(new SocketModule("ws://192.168.50.13:8080/nearby/websocket"))
                     .networkModule(new NetworkModule("http://192.168.50.13:8080"))
                     .build();
         }

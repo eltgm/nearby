@@ -25,6 +25,10 @@ public class JoinRoomPresenter extends BasePresenter<JoinRoomView> {
         this.disposables = new CompositeDisposable();
     }
 
+    public void moveToMap(String roomId) {
+        router.newRootScreen(new Screens.MapScreen(false, roomId));
+    }
+
     public void leaveRoomWaitlist(String roomId) {
         addDisposable(userApi.leaveRoom(roomId, getUserId())
                 .subscribeOn(Schedulers.io())

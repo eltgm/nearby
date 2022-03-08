@@ -29,6 +29,7 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import ua.naiksoftware.stomp.StompClient;
 
 public class CreateRoomFragment extends MvpAppCompatFragment implements CreateRoomView {
     private String roomId;
@@ -43,6 +44,8 @@ public class CreateRoomFragment extends MvpAppCompatFragment implements CreateRo
     UserApi userApi;
     @Inject
     AdminApi adminApi;
+    @Inject
+    StompClient stompClient;
 
     private CreateRoomFragment() {
     }
@@ -52,20 +55,18 @@ public class CreateRoomFragment extends MvpAppCompatFragment implements CreateRo
 
     @ProvidePresenter
     CreateRoomPresenter provideCreateRoomPresenter() {
-        return new CreateRoomPresenter(router, userApi, adminApi);
+        return new CreateRoomPresenter(router, userApi, adminApi, stompClient);
     }
 
     public static CreateRoomFragment newInstance() {
-        CreateRoomFragment fragment = new CreateRoomFragment();
-        Bundle args = new Bundle();
-
-        return fragment;
+        return new CreateRoomFragment();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         App.INSTANCE.getAppComponent().injectCreateRoomFragment(this);
         super.onCreate(savedInstanceState);
+        stompClient.connect();
         createRoomPresenter.createRoom();
     }
 
@@ -113,4 +114,9 @@ public class CreateRoomFragment extends MvpAppCompatFragment implements CreateRo
         Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show();
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        stompClient.disconnect();
+    }
 }

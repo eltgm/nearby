@@ -13,18 +13,24 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
+import ua.naiksoftware.stomp.StompClient;
 
 @InjectViewState
 public class CreateRoomPresenter extends BasePresenter<CreateRoomView> {
     private final Router router;
     private final UserApi userApi;
     private final AdminApi adminApi;
+    private final StompClient stompClient;
     private final CompositeDisposable disposables;
 
-    public CreateRoomPresenter(Router router, UserApi userApi, AdminApi adminApi) {
+    public CreateRoomPresenter(Router router,
+                               UserApi userApi,
+                               AdminApi adminApi,
+                               StompClient stompClient) {
         this.router = router;
         this.userApi = userApi;
         this.adminApi = adminApi;
+        this.stompClient = stompClient;
         this.disposables = new CompositeDisposable();
     }
 
@@ -58,6 +64,7 @@ public class CreateRoomPresenter extends BasePresenter<CreateRoomView> {
                 .subscribeWith(new DisposableObserver<Room>() {
                     @Override
                     public void onNext(Room room) {
+                        stompClient.send(String.format("/room/activate/%s", roomId)).subscribe();
                         router.newRootScreen(new Screens.MapScreen(true, roomId));
                     }
 

@@ -24,6 +24,7 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import ua.naiksoftware.stomp.StompClient;
 
 public class WaitingRoomFragment extends MvpAppCompatFragment implements JoinRoomView {
     private String roomId;
@@ -32,6 +33,8 @@ public class WaitingRoomFragment extends MvpAppCompatFragment implements JoinRoo
     Router router;
     @Inject
     UserApi userApi;
+    @Inject
+    StompClient stompClient;
     @BindView(R.id.scanner_view)
     CodeScannerView scannerView;
     @BindView(R.id.bLeaveRoomWaitlist)
@@ -59,6 +62,7 @@ public class WaitingRoomFragment extends MvpAppCompatFragment implements JoinRoo
     public void onCreate(Bundle savedInstanceState) {
         App.INSTANCE.getAppComponent().injectJoinRoomFragment(this);
         super.onCreate(savedInstanceState);
+        stompClient.connect();
     }
 
     @Override
@@ -73,6 +77,7 @@ public class WaitingRoomFragment extends MvpAppCompatFragment implements JoinRoo
     }
 
     private void initView() {
+        stompClient.topic(String.format("/room/activation/%s", roomId)).subscribe(topicMessage -> joinRoomPresenter.moveToMap(topicMessage.getPayload()));
         startScanning();
     }
 
@@ -102,5 +107,11 @@ public class WaitingRoomFragment extends MvpAppCompatFragment implements JoinRoo
     public void joinWaitlist() {
         bLeaveRoomWaitlist.setVisibility(View.VISIBLE);
         scannerView.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        stompClient.disconnect();
     }
 }
