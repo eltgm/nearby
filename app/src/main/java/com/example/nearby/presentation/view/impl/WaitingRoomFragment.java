@@ -52,10 +52,7 @@ public class WaitingRoomFragment extends MvpAppCompatFragment implements JoinRoo
     }
 
     public static WaitingRoomFragment newInstance() {
-        WaitingRoomFragment fragment = new WaitingRoomFragment();
-        Bundle args = new Bundle();
-
-        return fragment;
+        return new WaitingRoomFragment();
     }
 
     @Override

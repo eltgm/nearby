@@ -17,10 +17,7 @@ public class MyRoomsFragment extends MvpAppCompatFragment implements MyRoomsView
     }
 
     public static MyRoomsFragment newInstance() {
-        MyRoomsFragment fragment = new MyRoomsFragment();
-        Bundle args = new Bundle();
-
-        return fragment;
+        return new MyRoomsFragment();
     }
 
     @Override
