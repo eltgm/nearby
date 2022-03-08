@@ -74,7 +74,6 @@ public class WaitingRoomFragment extends MvpAppCompatFragment implements JoinRoo
     }
 
     private void initView() {
-        stompClient.topic(String.format("/room/activation/%s", roomId)).subscribe(topicMessage -> joinRoomPresenter.moveToMap(topicMessage.getPayload()));
         startScanning();
     }
 
@@ -89,6 +88,7 @@ public class WaitingRoomFragment extends MvpAppCompatFragment implements JoinRoo
         CodeScanner mCodeScanner = new CodeScanner(getContext(), scannerView);
         mCodeScanner.setDecodeCallback(result -> getActivity().runOnUiThread(() -> {
             this.roomId = result.getText();
+            stompClient.topic(String.format("/room/activation/%s", roomId)).subscribe(topicMessage -> joinRoomPresenter.moveToMap(topicMessage.getPayload()));
             joinRoomPresenter.joinRoom(roomId);
             mCodeScanner.releaseResources();
         }));

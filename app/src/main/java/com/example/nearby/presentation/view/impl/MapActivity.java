@@ -131,20 +131,20 @@ public class MapActivity extends MvpAppCompatActivity implements MapView, UserLo
 
             @Override
             public void onProviderEnabled(@NonNull String provider) {
-
+                System.out.println("provider = " + provider);
             }
 
             @Override
             public void onProviderDisabled(@NonNull String provider) {
-
+                System.out.println("provider = " + provider);
             }
 
             @Override
             public void onStatusChanged(String provider, int status, Bundle extras) {
-
+                System.out.println("provider = " + provider);
             }
         };
-        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 0, this.locationListener);
+        mLocationManager.requestLocationUpdates(LocationManager.FUSED_PROVIDER, 10000, 0, this.locationListener);
     }
 
     @Override

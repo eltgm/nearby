@@ -100,6 +100,8 @@ public class MapPresenter extends BasePresenter<MapView> {
 
     private void drawUsersIfNecessary(List<User> users, String userId, @NonNull Location location, MapObjectCollection mapObjectCollection) {
         for (User user : users) {
+            if (user.getLastCoordinates() == null) continue;
+
             String updatedUserId = user.getId();
             if (updatedUserId.equals(userId)) continue;
 
@@ -113,7 +115,7 @@ public class MapPresenter extends BasePresenter<MapView> {
             if (drawnUsers.containsKey(updatedUserId)) {
                 Log.d(MAP_TAG, String.format("Пользователь с id - %s уже отрисован", updatedUserId));
                 PlacemarkMapObject userMark = drawnUsers.get(updatedUserId);
-                if (distanceBetweenUsers <= 10) {
+                if (distanceBetweenUsers <= 15) {
                     Log.d(MAP_TAG, String.format("Обновляем позицию пользователя - %s", updatedUserId));
                     userMark.setGeometry(newUserPoint);
                 } else {
@@ -121,10 +123,11 @@ public class MapPresenter extends BasePresenter<MapView> {
                     mapObjectCollection.remove(userMark);
                     drawnUsers.remove(updatedUserId);
                 }
-            } else if (distanceBetweenUsers <= 10) {
+            } else if (distanceBetweenUsers <= 15) {
                 Log.d(MAP_TAG, String.format("Пользователя - %s нет. Рисуем", updatedUserId, distanceBetweenUsers));
                 drawnUsers.put(updatedUserId, mapObjectCollection.addPlacemark(newUserPoint, ImageProvider.fromBitmap(decodeResource(resources, R.drawable.outline_account_circle_black_36))));
             }
+            Log.d(MAP_TAG, String.format("Расстояние между пользователями - %f", distanceBetweenUsers));
         }
     }
 
@@ -169,7 +172,7 @@ public class MapPresenter extends BasePresenter<MapView> {
 
         @Override
         public void onError(Throwable e) {
-            getViewState().showError(String.format("Ошибка при выходе/удалении комнаты - %s", e.getLocalizedMessage()));
+            router.newRootScreen(new Screens.MainScreen());
         }
 
         @Override
