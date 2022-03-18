@@ -89,6 +89,7 @@ public class MapPresenter extends BasePresenter<MapView> {
                     @Override
                     public void onError(Throwable e) {
                         getViewState().showError("Ошибка при обновлении координат - " + e.getLocalizedMessage());
+                        router.newRootScreen(new Screens.MainScreen());
                     }
 
                     @Override
