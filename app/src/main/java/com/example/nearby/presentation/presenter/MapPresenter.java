@@ -38,6 +38,7 @@ import io.reactivex.schedulers.Schedulers;
 @InjectViewState
 public class MapPresenter extends BasePresenter<MapView> {
     private static final String MAP_TAG = "users_map_tag";
+    private static final int DISTANCE_BETWEEN_USERS_IN_METERS = 15;
 
     private final Router router;
     private final UserApi userApi;
@@ -116,7 +117,7 @@ public class MapPresenter extends BasePresenter<MapView> {
             if (drawnUsers.containsKey(updatedUserId)) {
                 Log.d(MAP_TAG, String.format("Пользователь с id - %s уже отрисован", updatedUserId));
                 PlacemarkMapObject userMark = drawnUsers.get(updatedUserId);
-                if (distanceBetweenUsers <= 15) {
+                if (distanceBetweenUsers <= DISTANCE_BETWEEN_USERS_IN_METERS) {
                     Log.d(MAP_TAG, String.format("Обновляем позицию пользователя - %s", updatedUserId));
                     userMark.setGeometry(newUserPoint);
                 } else {
@@ -124,7 +125,7 @@ public class MapPresenter extends BasePresenter<MapView> {
                     mapObjectCollection.remove(userMark);
                     drawnUsers.remove(updatedUserId);
                 }
-            } else if (distanceBetweenUsers <= 15) {
+            } else if (distanceBetweenUsers <= DISTANCE_BETWEEN_USERS_IN_METERS) {
                 Log.d(MAP_TAG, String.format("Пользователя - %s нет. Рисуем", updatedUserId, distanceBetweenUsers));
                 drawnUsers.put(updatedUserId, mapObjectCollection.addPlacemark(newUserPoint, ImageProvider.fromBitmap(decodeResource(resources, R.drawable.outline_account_circle_black_36))));
             }

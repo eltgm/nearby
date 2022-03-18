@@ -110,7 +110,6 @@ public class MapActivity extends MvpAppCompatActivity implements MapView, UserLo
         MapKit mapKit = MapKitFactory.getInstance();
         userLocationLayer = mapKit.createUserLocationLayer(mapView.getMapWindow());
         userLocationLayer.setVisible(true);
-        userLocationLayer.setHeadingEnabled(true);
 
         userLocationLayer.setObjectListener(this);
         this.mapObjectCollection = usersMap.getMapObjects();
