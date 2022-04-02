@@ -83,7 +83,7 @@ public class MapPresenter extends BasePresenter<MapView> {
                         Log.d(MAP_TAG, "обновление координат");
                         List<User> users = room.getUsers();
 
-                        checkLeftUsersAndDeletePlacemarks(users);
+                        checkLeftUsersAndDeletePlacemarks(users, mapObjectCollection);
                         drawUsersIfNecessary(users, userId, location, mapObjectCollection);
                     }
 
@@ -133,7 +133,7 @@ public class MapPresenter extends BasePresenter<MapView> {
         }
     }
 
-    private void checkLeftUsersAndDeletePlacemarks(List<User> users) {
+    private void checkLeftUsersAndDeletePlacemarks(List<User> users, MapObjectCollection mapObjectCollection) {
         List<String> usersIdToDelete = new ArrayList<>();
         for (Map.Entry<String, PlacemarkMapObject> stringPlacemarkMapObjectEntry : drawnUsers.entrySet()) {
             String drawnUserId = stringPlacemarkMapObjectEntry.getKey();
@@ -150,6 +150,8 @@ public class MapPresenter extends BasePresenter<MapView> {
             }
         }
         for (String userId : usersIdToDelete) {
+            PlacemarkMapObject userMark = drawnUsers.get(userId);
+            mapObjectCollection.remove(userMark);
             drawnUsers.remove(userId);
         }
         usersIdToDelete.clear();

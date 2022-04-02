@@ -16,12 +16,12 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentFactory;
 
-import com.example.nearby.presentation.view.impl.MainActivity;
 import com.example.nearby.presentation.view.impl.CreateRoomFragment;
-import com.example.nearby.presentation.view.impl.WaitingRoomFragment;
+import com.example.nearby.presentation.view.impl.MainActivity;
 import com.example.nearby.presentation.view.impl.MapActivity;
 import com.example.nearby.presentation.view.impl.MyRoomsFragment;
 import com.example.nearby.presentation.view.impl.StartFragment;
+import com.example.nearby.presentation.view.impl.WaitingRoomFragment;
 import com.github.terrakok.cicerone.androidx.ActivityScreen;
 import com.github.terrakok.cicerone.androidx.FragmentScreen;
 

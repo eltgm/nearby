@@ -63,21 +63,21 @@ public class JoinRoomPresenter extends BasePresenter<JoinRoomView> {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new DisposableObserver<Room>() {
 
-            @Override
-            public void onNext(Room room) {
-                getViewState().joinWaitlist();
-            }
+                    @Override
+                    public void onNext(Room room) {
+                        getViewState().joinWaitlist();
+                    }
 
-            @Override
-            public void onError(Throwable e) {
-                getViewState().showError(String.format("Ошибка при входе в комнату - %s", e.getLocalizedMessage()));
-            }
+                    @Override
+                    public void onError(Throwable e) {
+                        getViewState().showError(String.format("Ошибка при входе в комнату - %s", e.getLocalizedMessage()));
+                    }
 
-            @Override
-            public void onComplete() {
+                    @Override
+                    public void onComplete() {
 
-            }
-        }));
+                    }
+                }));
     }
 
     private void addDisposable(Disposable disposable) {

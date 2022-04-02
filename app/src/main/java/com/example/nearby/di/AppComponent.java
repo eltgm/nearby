@@ -1,11 +1,11 @@
 package com.example.nearby.di;
 
 import com.example.nearby.presentation.view.impl.CreateRoomFragment;
-import com.example.nearby.presentation.view.impl.WaitingRoomFragment;
 import com.example.nearby.presentation.view.impl.MainActivity;
 import com.example.nearby.presentation.view.impl.MapActivity;
 import com.example.nearby.presentation.view.impl.MyRoomsFragment;
 import com.example.nearby.presentation.view.impl.StartFragment;
+import com.example.nearby.presentation.view.impl.WaitingRoomFragment;
 
 import javax.inject.Singleton;
 

@@ -27,8 +27,6 @@ import butterknife.OnClick;
 import ua.naiksoftware.stomp.StompClient;
 
 public class WaitingRoomFragment extends MvpAppCompatFragment implements JoinRoomView {
-    private String roomId;
-
     @Inject
     Router router;
     @Inject
@@ -39,20 +37,20 @@ public class WaitingRoomFragment extends MvpAppCompatFragment implements JoinRoo
     CodeScannerView scannerView;
     @BindView(R.id.bLeaveRoomWaitlist)
     Button bLeaveRoomWaitlist;
+    @InjectPresenter
+    JoinRoomPresenter joinRoomPresenter;
+    private String roomId;
 
     private WaitingRoomFragment() {
     }
 
-    @InjectPresenter
-    JoinRoomPresenter joinRoomPresenter;
+    public static WaitingRoomFragment newInstance() {
+        return new WaitingRoomFragment();
+    }
 
     @ProvidePresenter
     JoinRoomPresenter provideJoinRoomPresenter() {
         return new JoinRoomPresenter(router, userApi);
-    }
-
-    public static WaitingRoomFragment newInstance() {
-        return new WaitingRoomFragment();
     }
 
     @Override

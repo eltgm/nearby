@@ -3,8 +3,6 @@ package com.example.nearby.network;
 import com.example.nearby.models.Coordinates;
 import com.example.nearby.models.Room;
 
-import java.util.List;
-
 import io.reactivex.Observable;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -16,9 +14,6 @@ public interface UserApi {
 
     @POST("user/room")
     Observable<Room> createRoom(@Query("userId") String userId);
-
-    @GET("user/room")
-    Observable<List<Room>> getRooms(@Query("userId") String userId);
 
     @GET("user/room/{roomId}/enter")
     Observable<Room> enterRoom(@Path("roomId") String roomId, @Query("userId") String userId);

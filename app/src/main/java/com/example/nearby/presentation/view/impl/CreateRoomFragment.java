@@ -32,8 +32,6 @@ import butterknife.OnClick;
 import ua.naiksoftware.stomp.StompClient;
 
 public class CreateRoomFragment extends MvpAppCompatFragment implements CreateRoomView {
-    private String roomId;
-
     @BindView(R.id.ivQR)
     ImageView ivQR;
     @BindView(R.id.bActivate)
@@ -46,20 +44,20 @@ public class CreateRoomFragment extends MvpAppCompatFragment implements CreateRo
     AdminApi adminApi;
     @Inject
     StompClient stompClient;
+    @InjectPresenter
+    CreateRoomPresenter createRoomPresenter;
+    private String roomId;
 
     private CreateRoomFragment() {
     }
 
-    @InjectPresenter
-    CreateRoomPresenter createRoomPresenter;
+    public static CreateRoomFragment newInstance() {
+        return new CreateRoomFragment();
+    }
 
     @ProvidePresenter
     CreateRoomPresenter provideCreateRoomPresenter() {
         return new CreateRoomPresenter(router, userApi, adminApi, stompClient);
-    }
-
-    public static CreateRoomFragment newInstance() {
-        return new CreateRoomFragment();
     }
 
     @Override

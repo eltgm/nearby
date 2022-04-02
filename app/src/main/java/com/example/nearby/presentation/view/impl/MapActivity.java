@@ -48,14 +48,6 @@ import butterknife.OnClick;
 public class MapActivity extends MvpAppCompatActivity implements MapView, UserLocationObjectListener {
     private final Navigator navigator
             = new AppNavigator(this, -1);
-    private boolean isUserAdmin = false;
-    private boolean isFirstRender = true;
-    private String roomId;
-    private Map usersMap;
-    private MapObjectCollection mapObjectCollection;
-    private LocationListener locationListener;
-    private LocationManager mLocationManager;
-
     @Inject
     Router router;
     @Inject
@@ -64,11 +56,17 @@ public class MapActivity extends MvpAppCompatActivity implements MapView, UserLo
     UserApi userApi;
     @Inject
     AdminApi adminApi;
-
     @BindView(R.id.mapView)
     com.yandex.mapkit.mapview.MapView mapView;
     @InjectPresenter
     MapPresenter mapPresenter;
+    private boolean isUserAdmin = false;
+    private boolean isFirstRender = true;
+    private String roomId;
+    private Map usersMap;
+    private MapObjectCollection mapObjectCollection;
+    private LocationListener locationListener;
+    private LocationManager mLocationManager;
     private UserLocationLayer userLocationLayer;
 
     @ProvidePresenter

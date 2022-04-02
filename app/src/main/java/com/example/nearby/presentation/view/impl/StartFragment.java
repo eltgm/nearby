@@ -33,13 +33,13 @@ public class StartFragment extends MvpAppCompatFragment implements StartView {
     private StartFragment() {
     }
 
+    public static StartFragment newInstance() {
+        return new StartFragment();
+    }
+
     @ProvidePresenter
     StartPresenter provideStartPresenter() {
         return new StartPresenter(router);
-    }
-
-    public static StartFragment newInstance() {
-        return new StartFragment();
     }
 
     @Override
